@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "946489667515",
+    "project_id": "catalogodemusica-b8aa4",
+    "storage_bucket": "catalogodemusica-b8aa4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946489667515:android:1859448676549e07d95e9e",
+        "android_client_info": {
+          "package_name": "com.example.des"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMOgKwOwXOx09us__wox24IxIoZb28Uxw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946489667515:android:9dea4ada98f4bdccd95e9e",
+        "android_client_info": {
+          "package_name": "com.example.desaf"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMOgKwOwXOx09us__wox24IxIoZb28Uxw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

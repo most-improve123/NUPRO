@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Catálogo de Música</string>
+    <string name="search_hint">Buscar canciones, álbumes o artistas...</string>
+    <string name="filter_by_genre">Filtrar por género</string>
+    <string name="filter_by_artist">Filtrar por artista</string>
+    <string name="filter_by_album">Filtrar por álbum</string>
+    <string name="song_title">Título</string>
+    <string name="song_artist">Artista</string>
+    <string name="song_album">Álbum</string>
+    <string name="song_genre">Género</string>
+    <string name="add_song">Agregar Canción</string>
+    <string name="add_album">Agregar Álbum</string>
+    <string name="add_artist">Agregar Artista</string>
+    <string name="title">Título</string>
+    <string name="artist">Artista</string>
+    <string name="album">Álbum</string>
+    <string name="genre">Género</string>
+    <string name="year">Año</string>
+    <string name="country">País</string>
+</resources>
