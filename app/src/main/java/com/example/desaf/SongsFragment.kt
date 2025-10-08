@@ -1,8 +1,8 @@
 package com.example.desaf
 
-// Ubicación: app/src/main/java/com/example/catalogodemusica/SongsFragment.kt
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +23,8 @@ import java.io.FileWriter
 class SongsFragment : Fragment() {
     private lateinit var songViewModel: SongViewModel
     private lateinit var songAdapter: SongAdapter
+    // Variable para almacenar la lista completa de canciones una vez cargada de Firebase
+    private lateinit var allSongsList: List<Song>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,7 +38,17 @@ class SongsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         songViewModel = ViewModelProvider(this).get(SongViewModel::class.java)
-        songAdapter = SongAdapter()
+        allSongsList = emptyList() // Inicialización segura
+
+        // MODIFICADO: Adapter con callback de click
+        songAdapter = SongAdapter { song ->
+            val intent = Intent(requireContext(), SongDetailActivity::class.java)
+            intent.putExtra("SONG_TITLE", song.title)
+            intent.putExtra("SONG_ARTIST", song.artist)
+            intent.putExtra("SONG_ALBUM", song.album)
+            intent.putExtra("SONG_GENRE", song.genre)
+            startActivity(intent)
+        }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -52,30 +64,38 @@ class SongsFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 newText?.let { text ->
-                    songViewModel.songs.value?.let { songs ->
-                        val filteredSongs = songs.filter {
-                            it.title.contains(text, ignoreCase = true) ||
-                                    it.artist.contains(text, ignoreCase = true)
-                        }
-                        songAdapter.setSongs(filteredSongs)
+                    // Usamos la lista completa para la búsqueda
+                    val filteredSongs = allSongsList.filter {
+                        it.title.contains(text, ignoreCase = true) ||
+                                it.artist.contains(text, ignoreCase = true)
                     }
+                    songAdapter.setSongs(filteredSongs)
                 }
                 return true
             }
         })
 
         val genres = listOf("Todos", "Rock", "Pop", "Jazz", "Clásica")
+
+        // CORRECCIÓN 1: Configuración del Spinner para la flechita
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, genres)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         genreSpinner.adapter = adapter
 
+        // CORRECCIÓN 2: Lógica de filtrado local y tolerable a espacios
         genreSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedGenre = genres[position]
-                if (selectedGenre == "Todos") {
-                    songViewModel.loadSongs()
+
+                val songsToDisplay = if (selectedGenre == "Todos") {
+                    allSongsList // Si es "Todos", usamos la lista completa que ya cargamos
                 } else {
-                    songViewModel.getSongsByGenre(selectedGenre)
+                    // Filtramos la lista completa guardada localmente
+                    // Usamos .trim() en el género de la canción por si tiene espacios en Firebase
+                    allSongsList.filter { it.genre.toString().trim().equals(selectedGenre, ignoreCase = true) }
                 }
+
+                songAdapter.setSongs(songsToDisplay) // Actualizamos el RecyclerView
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -91,8 +111,18 @@ class SongsFragment : Fragment() {
             }
         }
 
+        // CORRECCIÓN 3: Almacenar la lista completa al recibirla y refiltrar
         songViewModel.songs.observe(viewLifecycleOwner, { songs ->
-            songAdapter.setSongs(songs)
+            allSongsList = songs // <-- Guardamos la lista completa, incluyendo la canción nueva
+
+            // Refiltramos la lista actual para mantener el estado del Spinner
+            val selectedGenre = genres[genreSpinner.selectedItemPosition]
+            val songsToDisplay = if (selectedGenre == "Todos") {
+                allSongsList
+            } else {
+                allSongsList.filter { it.genre.toString().trim().equals(selectedGenre, ignoreCase = true) }
+            }
+            songAdapter.setSongs(songsToDisplay)
         })
 
         songViewModel.loadSongs()
@@ -109,13 +139,18 @@ class SongsFragment : Fragment() {
             .setTitle("Agregar Canción")
             .setView(dialogView)
             .setPositiveButton("Agregar") { _, _ ->
+                // Normalizamos el texto con .trim() antes de guardar
                 val song = Song(
-                    title = titleEditText.text.toString(),
-                    artist = artistEditText.text.toString(),
-                    album = albumEditText.text.toString(),
-                    genre = genreEditText.text.toString()
+                    title = titleEditText.text.toString().trim(),
+                    artist = artistEditText.text.toString().trim(),
+                    album = albumEditText.text.toString().trim(),
+                    genre = genreEditText.text.toString().trim()
                 )
+
                 songViewModel.addSong(song)
+
+                // FORZAMOS la recarga de la lista completa. Esto dispara el 'observe' y actualiza el filtro.
+                songViewModel.loadSongs()
             }
             .setNegativeButton("Cancelar", null)
             .show()
