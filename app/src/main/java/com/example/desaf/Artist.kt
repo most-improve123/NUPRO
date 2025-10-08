@@ -1,8 +1,11 @@
 package com.example.desaf
 
 data class Artist(
-    val id: String = "",
-    val name: String = "",
-    val genre: String = "",
-    val country: String = ""
-)
+    var id: String = "",
+    var name: String = "",
+    var genre: String = "",
+    var country: String = ""
+) {
+    // Constructor vacío requerido por Firestore
+    constructor() : this("", "", "", "")
+}
