@@ -17,4 +17,10 @@
     <string name="genre">Género</string>
     <string name="year">Año</string>
     <string name="country">País</string>
+
+    <!-- Strings faltantes -->
+    <string name="add_album_description">Agregar álbum</string>
+    <string name="add_artist_description">Agregar artista</string>
+    <string name="add_song_description">Agregar canción</string>
+    <string name="exportar_csv">Exportar a CSV</string>
 </resources>
